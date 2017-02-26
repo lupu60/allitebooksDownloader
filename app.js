@@ -24,6 +24,10 @@ var downloadManager = {
         let dl = downloader.download(fileUrl, fileSavePath).start();
         this.registerDlEvents(dl);
     },
+    writeTofile: function(fileurl)
+    {
+        fs.appendFileSync('allurls.txt', fileurl+"\n");
+    },
     goToBook: function(pageBody)
     {
         for (var i = 0; i < pageBody('.entry-title a').get().length - 1; i++)
@@ -32,7 +36,7 @@ var downloadManager = {
             let bookPageBody = cheerio.load(getBook.getBody());
             if (bookPageBody('.download-links a').attr('href') != null)
             {
-                downloadManager.downloadBook(bookPageBody('.download-links a').attr('href'));
+                this.downloadBook(bookPageBody('.download-links a').attr('href'));
             }
         }
     },
@@ -44,6 +48,17 @@ var downloadManager = {
         }
         downloadManager.subfolder = type + "\\";
     },
+    downloadByTag: function(type, startnoPage, noPage)
+    {
+        this.checkDowloadLocation(type);
+        for (var i = startnoPage; i <= noPage; i++)
+        {
+            let url = "http://www.allitebooks.com/page/" + i + "/?s=" + tag;
+            console.log(url);
+            let getPage = request('GET', url);
+            goToBook(cheerio.load(getPage.getBody()));
+        }
+    },
     download: function(type, startnoPage, noPage)
     {
         this.checkDowloadLocation(type);
@@ -54,6 +69,32 @@ var downloadManager = {
             let getPage = request('GET', url);
             downloadManager.goToBook(cheerio.load(getPage.getBody()));
         }
+    },
+    downloadall: function(startnoPage, noPage)
+    {
+        for (var i = startnoPage; i <= noPage; i++)
+        {
+            let url = "http://www.allitebooks.com/page/" + i + "/";
+            console.log(url);
+            let getPage = request('GET', url);
+            downloadManager.goToBook(cheerio.load(getPage.getBody()));
+        }
     }
 }
-downloadManager.download("web-development", 21, 30);
+// downloadManager.downloadall(1, 691); //168
+// ================================================================================
+// downloadManager.download("web-development", 1, 168);
+// downloadManager.download("programming", 1, 133);
+// downloadManager.download("datebases", 1, 77);
+// downloadManager.download("graphics-design", 1, 29);
+// downloadManager.download("operating-systems", 1, 69);
+// downloadManager.download("networking-cloud-computing", 1, 60);
+// downloadManager.download("administration", 1, 23);
+// downloadManager.download("certification", 1, 14);
+// downloadManager.download("computers-technology", 1, 21);
+// downloadManager.download("enterprise", 1, 18);
+// downloadManager.download("game-programming", 1, 30);
+// downloadManager.download("hardware", 1, 23);
+// downloadManager.download("marketing-seo", 1, 6);
+// downloadManager.download("software", 1, 34);
+// ================================================================================
