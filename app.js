@@ -8,79 +8,67 @@ var Downloader = require('mt-files-downloader');
 var handleEvents = require('./_handleEvents');
 var printStats = require('./_printStats');
 var downloader = new Downloader();
+
 var downloadManager = {
     downloadLocation: process.cwd(),
-    subfolder: null,
-    registerDlEvents: function(dl)
-    {
+    subfolder: '/pdf/',
+    registerDlEvents: function (dl) {
         handleEvents(dl);
         printStats(dl);
     },
-    downloadBook: function(fileUrl)
-    {
-        let filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-        let fileSavePath = downloadManager.downloadLocation + downloadManager.subfolder + filename
+    downloadBook: function (fileUrl) {
+        var filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+        var fileSavePath = downloadManager.downloadLocation + downloadManager.subfolder + filename;
         console.log('File will be downloaded from ' + fileUrl + ' to ' + fileSavePath);
-        let dl = downloader.download(fileUrl, fileSavePath).start();
+        var dl = downloader.download(fileUrl, fileSavePath).start();
         this.registerDlEvents(dl);
     },
-    writeTofile: function(fileurl)
-    {
-        fs.appendFileSync('allurls.txt', fileurl+"\n");
+    writeTofile: function (fileurl) {
+        fs.appendFileSync('allurls.txt', fileurl + "\n");
     },
-    goToBook: function(pageBody)
-    {
-        for (var i = 0; i < pageBody('.entry-title a').get().length - 1; i++)
-        {
-            let getBook = request('GET', pageBody('.entry-title a').get(i).attribs.href);
-            let bookPageBody = cheerio.load(getBook.getBody());
-            if (bookPageBody('.download-links a').attr('href') != null)
-            {
+    goToBook: function (pageBody) {
+        for (var i = 0; i < pageBody('.entry-title a').get().length - 1; i++) {
+            var getBook = request('GET', pageBody('.entry-title a').get(i).attribs.href);
+            var bookPageBody = cheerio.load(getBook.getBody());
+            if (bookPageBody('.download-links a').attr('href') != null) {
                 this.downloadBook(bookPageBody('.download-links a').attr('href'));
+                this.writeTofile(encodeURI(bookPageBody('.download-links a').attr('href')));
             }
         }
     },
-    checkDowloadLocation: function(type)
-    {
-        if (!fs.existsSync(downloadManager.downloadLocation + type + "\\"))
-        {
+    checkDowloadLocation: function (type) {
+        if (!fs.existsSync(downloadManager.downloadLocation + type + "\\")) {
             fs.mkdirSync(downloadManager.downloadLocation + type + "\\");
         }
         downloadManager.subfolder = type + "\\";
     },
-    downloadByTag: function(type, startnoPage, noPage)
-    {
+    downloadByTag: function (type, startnoPage, noPage) {
         this.checkDowloadLocation(type);
-        for (var i = startnoPage; i <= noPage; i++)
-        {
-            let url = "http://www.allitebooks.com/page/" + i + "/?s=" + tag;
+        for (var i = startnoPage; i <= noPage; i++) {
+            var url = "http://www.allitebooks.com/page/" + i + "/?s=" + tag;
             console.log(url);
-            let getPage = request('GET', url);
+            var getPage = request('GET', url);
             goToBook(cheerio.load(getPage.getBody()));
         }
     },
-    download: function(type, startnoPage, noPage)
-    {
+    download: function (type, startnoPage, noPage) {
         this.checkDowloadLocation(type);
-        for (var i = startnoPage; i <= noPage; i++)
-        {
-            let url = "http://www.allitebooks.com/" + type + "/page/" + i + "/";
+        for (var i = startnoPage; i <= noPage; i++) {
+            var url = "http://www.allitebooks.com/" + type + "/page/" + i + "/";
             console.log(url);
-            let getPage = request('GET', url);
+            var getPage = request('GET', url);
             downloadManager.goToBook(cheerio.load(getPage.getBody()));
         }
     },
-    downloadall: function(startnoPage, noPage)
-    {
-        for (var i = startnoPage; i <= noPage; i++)
-        {
-            let url = "http://www.allitebooks.com/page/" + i + "/";
+    downloadall: function (startnoPage, noPage) {
+        for (var i = startnoPage; i <= noPage; i++) {
+            var url = "http://www.allitebooks.com/page/" + i + "/";
             console.log(url);
-            let getPage = request('GET', url);
+            var getPage = request('GET', url);
             downloadManager.goToBook(cheerio.load(getPage.getBody()));
         }
     }
-}
+};
 // downloadManager.downloadall(1, 691); //168
 // ================================================================================
 // downloadManager.download("web-development", 1, 168);
