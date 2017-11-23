@@ -9,7 +9,7 @@ var handleEvents = require('./_handleEvents');
 var printStats = require('./_printStats');
 var downloader = new Downloader();
 var downloadManager = {
-    downloadLocation: process.cwd()
+    downloadLocation: process.cwd(),
     subfolder: null,
     registerDlEvents: function(dl)
     {
