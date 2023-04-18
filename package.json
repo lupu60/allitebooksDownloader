@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^0.22.0",
+    "cheerio": "^1.0.0-rc.12",
     "jsdom": "^9.11.0",
     "mt-files-downloader": "^0.2.5",
     "sync-request": "^4.0.1"
